@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Event Registration</title>
+
+  <!-- intl-tel-input CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 135, 255, 0.9);
+      width: 350px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00ffff;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #0000FF;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #fffff;
+      color: #00000;
+      box-shadow: 0 0 8px rgba(0, 135, 255, 0.9);
+    }
+
+    input::placeholder {
+      color: #888;
+    }
+
+    select[multiple] {
+      height: 120px;
+    }
+
+    select option {
+      background-color: #000;
+      color: #fff;
+      padding: 10px;
+    }
+
+    select option:hover {
+      background-color: #00ffff;
+      color: #000;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #FFA500;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 135, 255, 0.9);
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background:#FF4D00 ;
+      transform: scale(1.02);
+    }
+
+    /* Phone input tweaks */
+    .iti {
+      width: 100%;
+      margin-bottom: 16px !important; /* ensures space below phone input */
+    }
+
+    .iti input {
+      background-color: #ffff;
+      color: #000;
+      border: 1px solid #0000FF;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0, 135, 255, 0.9);
+      padding-left: 75px !important; /* accommodate flag + dial code */
+    }
+
+    .iti__selected-dial-code {
+      color: #000 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 style="color: rgba(0, 135, 255, 1.0);">Register Here</h2>
+  <form id="registrationForm">
+    <input type="email" id="email" placeholder="Enter @email" required />
+    <input type="text" id="fullName" placeholder="Enter Full Name" required />
+    <input type="tel" id="contactNumber" placeholder=" Enter Contact Number" required />
+
+
+
+    <select id="department" class="no-arrow" required>
+      <option value="" disabled selected>Select Department</option>
+      <option value="Computer Department">COMPUTER DEPARTMENT</option>
+      <option value="Civil Department">CIVIL DEPARTMENT</option>
+    </select>
+
+ <select id="semester" class="no-arrow" required>
+      <option value="" disabled selected>Select Semester</option>
+      <option value="1st">1st</option>
+      <option value="2nd">2nd</option>
+      <option value="3rd">3rd</option>
+      <option value="4th">4th</option>
+      <option value="5th">5th</option>
+      <option value="6th">6th</option>
+      <option value="7th">7th</option>
+      <option value="8th">8th</option>
+    </select>
+    <select id="year" class="no-arrow" required>
+      <option value="" disabled selected>Select Year</option>
+      <option value="1st Year">1st Year</option>
+      <option value="2nd Year">2nd Year</option>
+      <option value="3rd Year">3rd Year</option>
+      <option value="4th Year">4th Year</option>
+    </select>
+
+    <select id="events" class="no-arrow" required>
+      <option value="" disabled selected>Organizing from club</option>
+      <option value="Literary">Literary</option>
+      <option value="DANCE">DANCE</option>
+      <option value="Science">Science</option>
+      <option value="NSS">NSS</option>
+    </select>
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+<!-- JS Dependencies -->
+<!-- JS Dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+<script>
+  // Initialize international phone input
+  const input = document.querySelector("#contactNumber");
+  const iti = window.intlTelInput(input, {
+    initialCountry: "in",
+    separateDialCode: true,
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+  });
+
+  // Form submission
+  document.getElementById("registrationForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const name = document.getElementById("fullName").value;
+    const phone = iti.getNumber();
+    const department = document.getElementById("department").value;
+    const semester = document.getElementById("semester").value;
+    const year = document.getElementById("year").value;
+    const event = document.getElementById("events").value;
+
+    const payload = {
+      email,
+      fullName: name,      // Match with backend 'fullName'
+      phone,
+      department,
+      semester,
+      year,
+      club: event          // Match with backend 'club'
+    };
+
+    fetch('/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        alert(`✅ ${data.message}\n\nEmail: ${email}\nName: ${name}\nPhone: ${phone}`);
+        document.getElementById("registrationForm").reset();
+        iti.setNumber(""); // reset phone input
+      } else {
+        alert(`❌ ${data.message || 'Unknown error occurred.'}`);
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("❌ Submission failed. Please check backend.");
+    });
+  });
+</script>
+
+</body>
+</html>
