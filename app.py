@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# Create SQLite DB and table if not exists
+# Initialize SQLite DB
 def init_db():
     conn = sqlite3.connect('registrations.db')
     c = conn.cursor()
@@ -23,14 +23,16 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()  # Initialize DB on app start
+# Call DB init
+init_db()
 
-# Serve your frontend (index.html)
+# Route to serve your form (place register.html inside "templates" folder)
 @app.route('/')
-def index():
-    return render_template('register.html')  # Make sure index.html is inside 'templates/' folder
+def form_page():
+    return render_template('register.html')  # ✅ NOT 'payment.html'
 
-# Receive and save form data
+
+# Route to handle form submission
 @app.route('/submit', methods=['POST'])
 def submit_form():
     try:
@@ -43,10 +45,11 @@ def submit_form():
         year = data.get('year')
         club = data.get('club')
 
-        # Basic validation
+        # Simple validation
         if not all([email, full_name, phone, department, semester, year, club]):
-            return jsonify({'status': 'error', 'message': 'Missing required fields.'}), 400
+            return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
 
+        # Save to DB
         conn = sqlite3.connect('registrations.db')
         c = conn.cursor()
         c.execute('''
@@ -60,7 +63,7 @@ def submit_form():
 
     except Exception as e:
         print("Error:", e)
-        return jsonify({'status': 'error', 'message': 'Internal server error.'}), 500
+        return jsonify({'status': 'error', 'message': 'Server error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
